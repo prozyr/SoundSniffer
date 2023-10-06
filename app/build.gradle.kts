@@ -3,11 +3,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.soundsniffier"
+    namespace = "com.example.sundsniffier2"
     compileSdk = 33
 
     defaultConfig {
-        applicationId = "com.example.soundsniffier"
+        applicationId = "com.example.sundsniffier2"
         minSdk = 24
         targetSdk = 33
         versionCode = 1

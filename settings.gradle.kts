@@ -13,5 +13,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Sound Sniffier"
+rootProject.name = "SundSniffier2"
 include(":app")
+ 
