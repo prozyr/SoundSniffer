@@ -4,7 +4,7 @@ plugins {
 
 android {
     namespace = "com.example.soundsniffier"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.example.soundsniffier"
@@ -30,6 +30,7 @@ android {
 
 dependencies {
 
+    //implementation("com.gauravk.audiovisualizer:audiovisualizer:0.9.2")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.10.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
