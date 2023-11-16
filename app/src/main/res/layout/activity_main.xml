@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#2B2B2B"
     tools:context=".MainActivity">
 
 
@@ -11,6 +12,7 @@
         android:id="@+id/mychart2"
         android:layout_width="412dp"
         android:layout_height="360dp"
+        android:background="#2B2B2B"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHeight_percent="0.5"
@@ -19,13 +21,15 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="1.0" />
 
+
     <com.github.mikephil.charting.charts.LineChart
         android:id="@+id/chart"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        tools:layout_editor_absoluteX="16dp"
-        tools:layout_editor_absoluteY="69dp"
+        android:background="#2B2B2B"
+        app:layout_constraintBottom_toBottomOf="@id/chart"
         app:layout_constraintHeight_percent="0.5"
-        app:layout_constraintBottom_toBottomOf="@id/chart"/>
+        tools:layout_editor_absoluteX="37dp" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

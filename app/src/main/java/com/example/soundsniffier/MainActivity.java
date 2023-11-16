@@ -18,6 +18,9 @@ import com.github.mikephil.charting.data.LineDataSet;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
 
 import android.content.pm.PackageManager;
 import android.media.AudioFormat;
@@ -49,7 +52,6 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int PERMISSION_RECORD_AUDIO = 1;
     private LineChart chart;
-
     private LineChart chart2;
     private AudioRecord audioRecord;
     private HandlerThread audioThread;
@@ -87,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
         chart = findViewById(R.id.chart);
         chart2 = findViewById(R.id.mychart2);
 
-        int sampleRate = 24000;  // TODO:
+        int sampleRate = 9000;  // TODO:
         int channelConfig = AudioFormat.CHANNEL_IN_MONO;
         int audioFormat = AudioFormat.ENCODING_PCM_16BIT;
         int bufferSize = AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioFormat);
@@ -189,7 +191,7 @@ public class MainActivity extends AppCompatActivity {
 
                         // END TODO: Workspace for histogram
 
-                        if (entries2.size() > bufferSize*12) { // TODO: LENGHT of dataset to draw in chart
+                        if (entries2.size() > bufferSize*20) { // TODO: LENGHT of dataset to draw in chart
                             for (int i = 0; i < bytesRead; i++)
                                 entries2.remove(0);
                         }
@@ -199,6 +201,7 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             LineDataSet dataSet,dataSet2;
+                            BarDataSet barDataSet;
                             synchronized (lock) {
                                 dataSet = new LineDataSet(new ArrayList<>(entries), "Data"); // Tworzymy kopię listy
                                 dataSet2 = new LineDataSet(new ArrayList<>(entries2), "Data");
