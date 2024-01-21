@@ -1,3 +1,5 @@
+// icon play button By Freepik
+// icon pause button By inkubators
 package com.example.soundsniffier;
 
 import android.content.pm.PackageManager;
@@ -6,6 +8,7 @@ import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.util.Log;
+import android.content.SharedPreferences;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -21,7 +24,7 @@ import java.util.List;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
-
+import androidx.appcompat.app.AppCompatActivity;
 import android.content.pm.PackageManager;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
@@ -31,6 +34,14 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.util.Log;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.Switch;
+import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -53,6 +64,10 @@ public class MainActivity extends AppCompatActivity {
     private static final int PERMISSION_RECORD_AUDIO = 1;
     private LineChart chart;
     private LineChart chart2;
+    private BarChart barChart;
+    private Button SpecButton;
+    protected ToggleButton startButton;
+    protected Boolean StopSwitch=false;
     private AudioRecord audioRecord;
     private HandlerThread audioThread;
     private Handler audioHandler;
@@ -60,6 +75,8 @@ public class MainActivity extends AppCompatActivity {
 
     private List<Entry> entries2 = new ArrayList<>();
 
+    private ArrayList barEntriesArrayList;
+    BarData barData;
     private int xValue = 0;
     private double[] window;
 
@@ -86,8 +103,57 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
         chart = findViewById(R.id.chart);
         chart2 = findViewById(R.id.mychart2);
+
+
+        startButton = findViewById((R.id.toggleButton));
+       // if (savedInstanceState != null) {
+       //     boolean toggleButtonState = savedInstanceState.getBoolean("toggleButtonState", true);
+       //     startButton.setChecked(toggleButtonState);
+       //     StopSwitch = savedInstanceState.getBoolean("StopSwitchState", false); // Ustaw stan StopSwitch z zapisanego stanu
+       // }
+
+        SharedPreferences preferences = getPreferences(MODE_PRIVATE);
+        boolean savedToggleButtonState = preferences.getBoolean("toggleButtonState", false);
+        boolean savedStopSwitchState = preferences.getBoolean("StopSwitchState", false);
+
+        startButton.setChecked(savedToggleButtonState);
+        StopSwitch = savedStopSwitchState;
+
+        SpecButton =  findViewById(R.id.SpecButton);
+        SpecButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+
+                Intent intent = new Intent(MainActivity.this, Spectogram.class);
+                intent.putExtra("StopSwitchState", StopSwitch);
+                intent.putExtra("ToggleButtonState", startButton.isChecked());
+                startActivity(intent);
+                //    Log.d("BUTTONS", "User tapped the Supabutton");
+                //finish();
+            }
+        });
+
+
+        startButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        @Override
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+
+            if (isChecked) {
+
+                Toast.makeText(MainActivity.this, "Switch jest włączony", Toast.LENGTH_LONG).show();
+                StopSwitch = true;
+
+
+            } else {
+                StopSwitch = false;
+                Toast.makeText(MainActivity.this, "Switch jest wyłączony", Toast.LENGTH_LONG).show();
+
+           }
+        }
+    });
+
 
         int sampleRate = 9000;  // TODO:
         int channelConfig = AudioFormat.CHANNEL_IN_MONO;
@@ -205,17 +271,30 @@ public class MainActivity extends AppCompatActivity {
                             synchronized (lock) {
                                 dataSet = new LineDataSet(new ArrayList<>(entries), "Data"); // Tworzymy kopię listy
                                 dataSet2 = new LineDataSet(new ArrayList<>(entries2), "Data");
+
+                                //barDataSet = new BarDataSet(barEntriesArrayList,"Data");
                             }
+
                             LineData lineData = new LineData(dataSet);
                             LineData lineData2 = new LineData(dataSet2);
+                            //barData = new BarData(barDataSet);
 
-                            chart.setData(lineData);
-                            chart.notifyDataSetChanged();
-                            chart.invalidate();
+                                if(!StopSwitch) {
 
-                            chart2.setData(lineData2);
-                            chart2.notifyDataSetChanged();
-                            chart2.invalidate();
+                                    chart.setData(lineData);
+                                    chart.notifyDataSetChanged();
+                                    chart.invalidate();
+
+                                //    barChart.setData(barData);
+                                //    barChart.notifyDataSetChanged();
+                                //    barChart.invalidate();
+
+                                    chart2.setData(lineData2);
+                                    chart2.notifyDataSetChanged();
+                                    chart2.invalidate();
+
+
+                                }
                         }
                     });
                 }
@@ -223,15 +302,15 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (audioRecord != null) {
-            audioRecord.stop();
-            audioRecord.release();
-            audioThread.quitSafely();
-        }
-    }
+  //  @Override
+  //  protected void onDestroy() {
+  //      super.onDestroy();
+  //      if (audioRecord != null) {
+  //          audioRecord.stop();
+  //          audioRecord.release();
+  //          audioThread.quitSafely();
+  //      }
+  //  }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -246,5 +325,38 @@ public class MainActivity extends AppCompatActivity {
             Log.e(TAG, "Brak uprawnień do nagrywania dźwięku.");
         }
     }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        // Zapisz aktualny stan przycisku ToggleButton i StopSwitch
+        SharedPreferences preferences = getPreferences(MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putBoolean("toggleButtonState", startButton.isChecked());
+        editor.putBoolean("StopSwitchState", StopSwitch);
+        editor.apply();
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+
+        //Toast.makeText(this, "Wywołanie INSTANCE ON SAVE " + startButton.isChecked(), Toast.LENGTH_SHORT).show();
+        // Zapisujemy stan przycisku ToggleButton do obiektu Bundle
+        savedInstanceState.putBoolean("toggleButtonState", startButton.isChecked());
+        savedInstanceState.putBoolean("StopSwitchState", StopSwitch);
+    }
+
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        Toast.makeText(this, "Wywołanie INSTANCE RESTORE " + startButton.isChecked(), Toast.LENGTH_SHORT).show();
+
+        // Przywróć stan przycisku z Bundle i ustaw na widoku przycisku
+        startButton.setChecked(savedInstanceState.getBoolean("toggleButtonState"));
+        StopSwitch = savedInstanceState.getBoolean("StopSwitchState");
+    }
+
 }
 
