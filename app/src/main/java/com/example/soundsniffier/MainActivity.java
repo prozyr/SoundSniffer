@@ -9,7 +9,7 @@ import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.util.Log;
 import android.content.SharedPreferences;
-
+import java.io.Serializable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
@@ -71,9 +71,9 @@ public class MainActivity extends AppCompatActivity {
     private AudioRecord audioRecord;
     private HandlerThread audioThread;
     private Handler audioHandler;
-    private List<Entry> entries = new ArrayList<>();
+    public List<Entry> entries = new ArrayList<>();
 
-    private List<Entry> entries2 = new ArrayList<>();
+    public  List<Entry> entries2 = new ArrayList<>();
 
     private ArrayList barEntriesArrayList;
     BarData barData;
@@ -109,11 +109,13 @@ public class MainActivity extends AppCompatActivity {
 
 
         startButton = findViewById((R.id.toggleButton));
-       // if (savedInstanceState != null) {
+        if (savedInstanceState != null) {
        //     boolean toggleButtonState = savedInstanceState.getBoolean("toggleButtonState", true);
        //     startButton.setChecked(toggleButtonState);
        //     StopSwitch = savedInstanceState.getBoolean("StopSwitchState", false); // Ustaw stan StopSwitch z zapisanego stanu
-       // }
+
+
+        }
 
         SharedPreferences preferences = getPreferences(MODE_PRIVATE);
         boolean savedToggleButtonState = preferences.getBoolean("toggleButtonState", false);
@@ -129,6 +131,7 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent(MainActivity.this, Spectogram.class);
                 intent.putExtra("StopSwitchState", StopSwitch);
                 intent.putExtra("ToggleButtonState", startButton.isChecked());
+
                 startActivity(intent);
                 //    Log.d("BUTTONS", "User tapped the Supabutton");
                 //finish();
@@ -278,6 +281,8 @@ public class MainActivity extends AppCompatActivity {
                             LineData lineData = new LineData(dataSet);
                             LineData lineData2 = new LineData(dataSet2);
                             //barData = new BarData(barDataSet);
+
+
 
                                 if(!StopSwitch) {
 
