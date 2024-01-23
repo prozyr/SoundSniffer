@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
     private Handler audioHandler;
     public List<Entry> entries = new ArrayList<>();
 
-    public  List<Entry> entries2 = new ArrayList<>();
+    static public  List<Entry> entries2 = new ArrayList<>();
 
     private ArrayList barEntriesArrayList;
     BarData barData;
