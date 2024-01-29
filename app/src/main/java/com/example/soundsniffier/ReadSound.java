@@ -86,7 +86,7 @@ public class ReadSound {
     private double[] window;
     public List<Entry> entries = new ArrayList<>();
     public List<Entry> entries2 = new ArrayList<>();
-    int sampleRate = 44100;  // TODO:
+    int sampleRate = 5000;  // TODO: 44100
     int channelConfig = AudioFormat.CHANNEL_IN_MONO;
     int audioFormat = AudioFormat.ENCODING_PCM_16BIT;
     int bufferSize = AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioFormat);
@@ -173,7 +173,7 @@ public class ReadSound {
                         for (int i = 0; i < bytesRead / 2; i++) {
                             int audioSample = (int) ((buffer[i * 2] & 0xFF) | (buffer[i * 2 + 1] << 8));
                             //bierzemy co drugą próbkę dla poprawy wydajności
-                            if(i%2==0)
+                            //if(i%2==0)
                             {
                                 entries2.add(new Entry(xValue++, (int)audioSample));
                                 data_toHist.add((short)audioSample);
@@ -223,8 +223,12 @@ public class ReadSound {
                         entries.clear();
                         for(int i = 0; i < a.length / 4; ++i) {
                             //bierzemy co drugą próbkę dla poprawy wydajności
-                            if(i%2==0)
-                            entries.add(new Entry((float)frequency[i],(float)magnitude[i]));
+                            //if(i%2==0)
+                            {
+                                entries.add(new Entry((float)frequency[i],(float)magnitude[i]));
+                            }
+
+
                         }
 
                         // END TODO: Workspace for histogram

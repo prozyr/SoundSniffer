@@ -65,8 +65,8 @@ public class MainActivity extends AppCompatActivity implements SoundDataObserver
     private LineChart chart2;
     private BarChart barChart;
     private Button SpecButton;
-    protected ToggleButton startButton;
-    protected Boolean StopSwitch = false;
+    private ToggleButton startButton;
+    private Boolean StopSwitch = false;
     private AudioRecord audioRecord;
     private HandlerThread audioThread;
     private Handler audioHandler;
@@ -82,8 +82,8 @@ public class MainActivity extends AppCompatActivity implements SoundDataObserver
     BarData barData;
     private int xValue = 0;
     private double[] window;
+    private SharedPreferences sharedPreferences;
 
-    private Object lock = new Object(); // Object for synchronization
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,27 +92,40 @@ public class MainActivity extends AppCompatActivity implements SoundDataObserver
 
         chart = findViewById(R.id.chart);
         chart2 = findViewById(R.id.mychart2);
+        SpecButton = findViewById(R.id.SpecButton);
+        startButton = findViewById((R.id.toggleButton));
 
         // Inicjalizacja obiektu ReadSound
         ReadSound readSound = new ReadSound(this);
         // Dodanie tej klasy jako obserwatora
         readSound.addObserver(this);
 
-        startButton = findViewById((R.id.toggleButton));
+        // Inicjalizacja SharedPreferences z nazwą pliku "MojeUstawienia"
+        sharedPreferences = getSharedPreferences("MojeUstawienia", MainActivity.MODE_PRIVATE);
+
+        // Odczytaj stan przycisku z SharedPreferences i ustaw go na przycisku
+        boolean savedToggleButtonState = sharedPreferences.getBoolean("toggleButtonState", false);
+        startButton.setChecked(savedToggleButtonState);
+
+        // Odczytaj stan StopSwitch z SharedPreferences
+        StopSwitch = sharedPreferences.getBoolean("StopSwitchState", false);
+
+
+/*        // Działa słabo lepiej użyć Shared Preferences albo przekazywać dane do innej klasy
         if (savedInstanceState != null) {
-            boolean savedToggleButtonState = savedInstanceState.getBoolean("toggleButtonState", false);
+            savedToggleButtonState = savedInstanceState.getBoolean("toggleButtonState", false);
             boolean savedStopSwitchState = savedInstanceState.getBoolean("StopSwitchState", false);
 
             startButton.setChecked(savedToggleButtonState);
             StopSwitch = savedStopSwitchState;
-        }
+        }*/
 
-        SpecButton = findViewById(R.id.SpecButton);
+
         SpecButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, Spectogram.class);
-                intent.putExtra("StopSwitchState", StopSwitch);
-                intent.putExtra("ToggleButtonState", startButton.isChecked());
+                //intent.putExtra("StopSwitchStateM", StopSwitch);
+                //intent.putExtra("ToggleButtonStateM", startButton.isChecked());
                 startActivity(intent);
             }
         });
@@ -127,13 +140,19 @@ public class MainActivity extends AppCompatActivity implements SoundDataObserver
                     StopSwitch = false;
                     Toast.makeText(MainActivity.this, "Switch jest wyłączony", Toast.LENGTH_LONG).show();
                 }
+
+                // Zapisz stan przycisku i StopSwitch do SharedPreferences po zmianie
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putBoolean("toggleButtonState", isChecked);
+                editor.putBoolean("StopSwitchState", StopSwitch);
+                editor.apply();
             }
         });
 
         // Rozpoczęcie nagrywania
         readSound.startRecording();
     }
-
+    private Object lock = new Object(); // Object for synchronization
     @Override
     public void onDataReceived(List<Entry> entries, List<Entry> entries2) {
         // Ta metoda zostanie wywołana, gdy dane zostaną odebrane od obserwatora (ReadSound)
@@ -179,7 +198,7 @@ public class MainActivity extends AppCompatActivity implements SoundDataObserver
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == 1 && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            int sampleRate = 44100;
+            int sampleRate = 5000; // 44100
             int channelConfig = AudioFormat.CHANNEL_IN_MONO;
             int audioFormat = AudioFormat.ENCODING_PCM_16BIT;
             int bufferSize = AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioFormat);
