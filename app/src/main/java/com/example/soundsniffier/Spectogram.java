@@ -19,7 +19,20 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.Toast;
-
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.util.Log;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import com.example.soundsniffier.SoundDataObserver;
+import com.example.soundsniffier.ReadSound;
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
+import com.google.gson.Gson;
+import java.util.ArrayList;
+import java.util.List;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
@@ -38,7 +51,7 @@ import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.Toast;
 import android.widget.ToggleButton;
-
+import com.google.gson.reflect.TypeToken;
 import androidx.annotation.NonNull;
 
 
@@ -50,6 +63,8 @@ public class Spectogram extends AppCompatActivity implements SoundDataObserver {
     private LineChart SpecChart;
     private ToggleButton startButtonSpec;
     private Boolean StopSwitchSpec = false;
+    private boolean isDataSaved = false;
+    private boolean isChartSaved = false;
     private SharedPreferences sharedPreferences;
     private static final String TAG = "SoundSniffer";
     @Override
@@ -133,23 +148,31 @@ public class Spectogram extends AppCompatActivity implements SoundDataObserver {
 
                 if (!StopSwitchSpec) {
 
+
                     // Update second chart data and refresh
                     SpecChart.setData(lineData2);
                     SpecChart.notifyDataSetChanged();
                     SpecChart.invalidate();
 
-/*                    // Retrieve X and Y values from the second chart
-                    float get_X_Value = chart2.getX();
-                    float get_Y_Value = chart2.getY();
-
-                    // Add the new entry to specData
-                    specData.add(new Entry(get_Y_Value, get_X_Value));*/
                 }
+
             }
         });
     }
 
+    private void saveEntriesToSharedPreferences(List<Entry> entries) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        Gson gson = new Gson();
+        String entriesJson = gson.toJson(entries);
+        editor.putString("entriesKey", entriesJson);
+        editor.apply();
+    }
 
+    private List<Entry> loadEntriesFromSharedPreferences() {
+        Gson gson = new Gson();
+        String entriesJson = sharedPreferences.getString("entriesKey", "");
+        return gson.fromJson(entriesJson, new TypeToken<List<Entry>>() {}.getType());
+    }
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
