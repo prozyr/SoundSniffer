@@ -49,17 +49,17 @@
 
     <Button
         android:id="@+id/SpecButton"
-        android:text="Spec"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_marginTop="20dp"
         android:layout_marginRight="100dp"
+        android:background="@drawable/bar_button_svg"
         android:padding="40dp"
+        android:text="Chart"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:background="@android:color/black"
-        ></Button>
+        app:layout_constraintTop_toTopOf="parent">
 
+    </Button>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
