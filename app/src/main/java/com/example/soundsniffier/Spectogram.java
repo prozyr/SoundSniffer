@@ -73,7 +73,7 @@ public class Spectogram extends AppCompatActivity implements SoundDataObserver {
         setContentView(R.layout.activity_spectogram);
 
         SpecChart =  findViewById(R.id.Spectogram);
-        startButtonSpec = findViewById(id.toggleButton);
+        startButtonSpec = findViewById(R.id.toggleButton);
 
         // Inicjalizacja obiektu ReadSound
         ReadSound readSound = new ReadSound(this);

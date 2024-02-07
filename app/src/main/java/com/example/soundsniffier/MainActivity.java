@@ -21,6 +21,8 @@ import com.github.mikephil.charting.data.LineDataSet;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.view.MotionEvent;
+import android.widget.TextView;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
@@ -75,7 +77,9 @@ public class MainActivity extends AppCompatActivity implements SoundDataObserver
     static public List<Entry> entries2 = new ArrayList<>();
     static public float get_X_Value;
     static public float get_Y_Value;
-
+    public float touchX;
+    public float touchY;
+    String infoText = "";
     static public List<Entry> specData = new ArrayList<>();
 
     private ArrayList barEntriesArrayList;
@@ -149,6 +153,42 @@ public class MainActivity extends AppCompatActivity implements SoundDataObserver
             }
         });
 
+
+
+
+
+        TextView infoTextView = findViewById(R.id.infoTextView);
+        TextView infoTextView2 = findViewById(R.id.infoTextView2);
+
+        // Dodaj onTouchListener do chart i chart2
+        chart.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                touchX = event.getX();
+                touchY = event.getY();
+                Entry entry = chart.getEntryByTouchPoint(touchX, touchY);
+                if (entry != null) {
+                    String infoText = "Zaznaczono punkt - X: " + entry.getX() + ", Y: " + entry.getY();
+                    infoTextView.setText(infoText);
+                }
+                return false;
+            }
+        });
+
+        chart2.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                float touchX = event.getX();
+                float touchY = event.getY();
+                Entry entry = chart2.getEntryByTouchPoint(touchX, touchY);
+                if (entry != null) {
+                    String infoText = "Zaznaczono punkt - X: " + entry.getX() + ", Y: " + entry.getY();
+                    infoTextView2.setText(infoText);
+                }
+                return false;
+            }
+        });
+
         // Rozpoczęcie nagrywania
         readSound.startRecording();
     }
@@ -182,6 +222,12 @@ public class MainActivity extends AppCompatActivity implements SoundDataObserver
                     chart2.notifyDataSetChanged();
                     chart2.invalidate();
 
+
+                    if(touchX != 0.0f)
+                    {
+                        highlightPoint(chart, touchX, entries);
+                    }
+
 /*                    // Retrieve X and Y values from the second chart
                     float get_X_Value = chart2.getX();
                     float get_Y_Value = chart2.getY();
@@ -189,10 +235,50 @@ public class MainActivity extends AppCompatActivity implements SoundDataObserver
                     // Add the new entry to specData
                     specData.add(new Entry(get_Y_Value, get_X_Value));*/
                 }
+/*
+                TextView infoTextView1 = findViewById(R.id.infoTextView);
+
+                // Załóżmy, że touchX to pozycja dotknięcia na wykresie
+                Entry entryForTouchX = dataSet.getEntryForXValue(touchX, Float.NaN);
+
+                if (entryForTouchX != null) {
+                    float xValue = entryForTouchX.getX();
+                    float yValue = entryForTouchX.getY();
+
+                    // Teraz masz prawidłowe wartości X i Y
+                    infoText = "Zaznaczono punkt - X: " + xValue + ", Y: " + yValue;
+                } else {
+                    infoText = "Zaznaczono punkt - X: " + touchX + ", Y: Brak";
+                }
+                infoTextView1.setText(infoText);*/
+
+
             }
         });
     }
 
+    private void highlightPoint(LineChart chart, float touchX, List<Entry> entries) {
+        TextView infoTextView1 = findViewById(R.id.infoTextView);
+        // Automatyczne zaznaczanie punktu na podstawie wartości X
+        Entry entryForTouchX = getEntryForXWithMargin(entries, touchX, 5f);
+        if (entryForTouchX != null) {
+            chart.highlightValue(entryForTouchX.getX(), entryForTouchX.getY(), 0);
+            String infoText = "Zaznaczono punkt - X: " + entryForTouchX.getX() + ", Y: " + entryForTouchX.getY();
+            // Ustaw informacje w odpowiednim TextView
+            // (możesz użyć findViewWithTag dla dynamicznego znajdowania odpowiedniego TextView)
+             infoTextView1.setText(infoText);
+        }
+    }
+
+    private Entry getEntryForXWithMargin(List<Entry> entries, float xValue, float marginError) {
+        for (Entry entry : entries) {
+            // Sprawdź, czy wartość X jest w zakresie z uwzględnieniem marginesu błędu
+            if (Math.abs(entry.getX() - xValue) <= marginError) {
+                return entry;
+            }
+        }
+        return null;
+    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
