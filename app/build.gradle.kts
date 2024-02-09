@@ -41,4 +41,9 @@ dependencies {
     implementation("com.github.wendykierp:JTransforms:3.1")
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("com.androidplot:androidplot-core:1.5.10")
+    //implementation("be.tarsos.dsp:core:2.5")
+    //implementation("be.tarsos.dsp:jvm:2.5")
+    implementation("com.github.wendykierp:JTransforms:3.1")
+
+
 }

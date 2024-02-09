@@ -44,7 +44,12 @@ import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.Toast;
 import android.widget.ToggleButton;
-
+import android.graphics.Color;
+import android.os.Bundle;
+import androidx.appcompat.app.AppCompatActivity;
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -170,6 +175,8 @@ public class MainActivity extends AppCompatActivity implements SoundDataObserver
                 if (entry != null) {
                     String infoText = "Zaznaczono punkt - X: " + entry.getX() + ", Y: " + entry.getY();
                     infoTextView.setText(infoText);
+                    touchX = entry.getX();
+
                 }
                 return false;
             }
@@ -206,7 +213,23 @@ public class MainActivity extends AppCompatActivity implements SoundDataObserver
                     // Create copies of the lists inside the synchronized block
                     dataSet = new LineDataSet(new ArrayList<>(entries), "Data");
                     dataSet2 = new LineDataSet(new ArrayList<>(entries2), "Data");
+
+                    dataSet.setColor(0xFF00FF00);
+                    dataSet2.setColor(0xFFFFFFFF);
+
+                    XAxis xAxis = chart.getXAxis();
+                    xAxis.setTextColor(Color.RED);  // Ustawia kolor tekstu na osi X
+                    xAxis.setAxisLineColor(Color.BLUE);  // Ustawia kolor linii osi X
+
+                    YAxis yAxis = chart.getAxisLeft();  // Lub getAxisRight(), jeśli chcesz zmienić kolor osi prawej
+                    yAxis.setTextColor(Color.GREEN);  // Ustawia kolor tekstu na osi Y
+                    yAxis.setAxisLineColor(Color.YELLOW);  // Ustawia kolor linii osi Y
+
+
                 }
+
+                /*transformXToLogarithmic(dataSet);
+                transformXToLogarithmic(dataSet2);*/
 
                 LineData lineData = new LineData(dataSet);
                 LineData lineData2 = new LineData(dataSet2);
@@ -257,15 +280,26 @@ public class MainActivity extends AppCompatActivity implements SoundDataObserver
         });
     }
 
+    private void transformXToLogarithmic(LineDataSet dataSet) {
+        List<Entry> transformedEntries = new ArrayList<>();
+        for (Entry entry : dataSet.getValues()) {
+            // Zakładam, że wartość X jest dodatnia
+            float transformedX = (float) Math.log10(entry.getX());
+            transformedEntries.add(new Entry(transformedX, entry.getY()));
+        }
+        dataSet.setValues(transformedEntries);
+    }
+/*
     private void highlightPoint(LineChart chart, float touchX, List<Entry> entries) {
         TextView infoTextView1 = findViewById(R.id.infoTextView);
         // Automatyczne zaznaczanie punktu na podstawie wartości X
-        Entry entryForTouchX = getEntryForXWithMargin(entries, touchX, 5f);
+        Entry entryForTouchX = getEntryForXWithMargin(entries, touchX, 1f);
         if (entryForTouchX != null) {
             chart.highlightValue(entryForTouchX.getX(), entryForTouchX.getY(), 0);
             String infoText = "Zaznaczono punkt - X: " + entryForTouchX.getX() + ", Y: " + entryForTouchX.getY();
             // Ustaw informacje w odpowiednim TextView
             // (możesz użyć findViewWithTag dla dynamicznego znajdowania odpowiedniego TextView)
+            Toast.makeText(this, "Znaleziono X ", Toast.LENGTH_SHORT).show();
              infoTextView1.setText(infoText);
         }
     }
@@ -278,7 +312,26 @@ public class MainActivity extends AppCompatActivity implements SoundDataObserver
             }
         }
         return null;
+    }*/
+private void highlightPoint(LineChart chart, float touchX, List<Entry> entries) {
+    TextView infoTextView1 = findViewById(R.id.infoTextView);
+
+    for (Entry entry : entries) {
+        if (entry != null) {
+            if (entry.getX() == touchX) {
+                chart.highlightValue(entry.getX(), entry.getY(), 0);
+                String infoText = "Zaznaczono punkt - X: " + entry.getX() + ", Y: " + entry.getY();
+                Toast.makeText(this, "Znaleziono X ", Toast.LENGTH_SHORT).show();
+                infoTextView1.setText(infoText);
+                return; // Zatrzymaj pętlę po znalezieniu odpowiedniego punktu
+            }
+        }
     }
+
+    // Jeśli nie znaleziono punktu o wartości X równą touchX
+    Toast.makeText(this, "Nie znaleziono punktu o wartości X: " + touchX, Toast.LENGTH_SHORT).show();
+}
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
