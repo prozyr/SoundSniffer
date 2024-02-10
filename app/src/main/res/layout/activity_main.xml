@@ -26,7 +26,7 @@
         android:id="@+id/chart"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginBottom="4dp"
+        android:layout_marginBottom="0dp"
         android:background="#2B2B2B"
         app:layout_constraintBottom_toBottomOf="@id/chart"
         app:layout_constraintHeight_percent="0.5"

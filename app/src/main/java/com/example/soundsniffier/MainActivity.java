@@ -12,7 +12,10 @@ import android.content.SharedPreferences;
 import java.io.Serializable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-
+import android.os.Bundle;
+import android.view.Window;
+import android.view.WindowManager;
+import androidx.appcompat.app.AppCompatActivity;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
@@ -84,6 +87,10 @@ public class MainActivity extends AppCompatActivity implements SoundDataObserver
     static public float get_Y_Value;
     public float touchX;
     public float touchY;
+    public  float max_1_Y = 0;
+    public  float max_2_Y = 0;
+    public  float min_1_Y = 1000;
+    public  float min_2_Y = 0;
     String infoText = "";
     static public List<Entry> specData = new ArrayList<>();
 
@@ -97,12 +104,45 @@ public class MainActivity extends AppCompatActivity implements SoundDataObserver
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
 
         chart = findViewById(R.id.chart);
         chart2 = findViewById(R.id.mychart2);
         SpecButton = findViewById(R.id.SpecButton);
         startButton = findViewById((R.id.toggleButton));
+
+        int textSize = 10;
+
+        chart.getXAxis().setTextColor(Color.WHITE);  // Ustawia kolor tekstu na osi X
+        chart.getXAxis().setAxisLineColor(Color.WHITE);  // Ustawia kolor linii osi X
+        chart.getAxisLeft().setTextColor(Color.WHITE);  // Ustawia kolor tekstu na osi Y (lewej)
+        chart.getAxisLeft().setAxisLineColor(Color.WHITE);  // Ustawia kolor linii osi Y (lewej)
+        chart.getAxisRight().setTextColor(Color.WHITE);  // Ustawia kolor tekstu na osi Y (prawej)
+        chart.getAxisRight().setAxisLineColor(Color.WHITE);
+        chart.getDescription().setTextColor(Color.WHITE);
+        chart.getAxisLeft().setTextSize(textSize);
+        chart.getAxisRight().setTextSize(textSize);
+        chart.getXAxis().setTextSize(textSize);
+        chart.getDescription().setText("Histogram");
+        chart.getDescription().setTextSize(textSize);
+        chart.getLegend().setTextColor(Color.WHITE);
+
+
+        chart2.getXAxis().setTextColor(Color.WHITE);  // Ustawia kolor tekstu na osi X
+        chart2.getXAxis().setAxisLineColor(Color.WHITE);  // Ustawia kolor linii osi X
+        chart2.getAxisLeft().setTextColor(Color.WHITE);  // Ustawia kolor tekstu na osi Y (lewej)
+        chart2.getAxisLeft().setAxisLineColor(Color.WHITE);  // Ustawia kolor linii osi Y (lewej)
+        chart2.getAxisRight().setTextColor(Color.WHITE);  // Ustawia kolor tekstu na osi Y (prawej)
+        chart2.getAxisRight().setAxisLineColor(Color.WHITE);
+        chart2.getDescription().setTextColor(Color.WHITE);
+        chart2.getAxisLeft().setTextSize(textSize);
+        chart2.getAxisRight().setTextSize(textSize);
+        chart2.getXAxis().setTextSize(textSize);
+        chart2.getDescription().setText("Przebieg");
+        chart2.getDescription().setTextSize(textSize);
+        chart2.getLegend().setTextColor(Color.WHITE);
 
         // Inicjalizacja obiektu ReadSound
         ReadSound readSound = new ReadSound(this);
@@ -143,11 +183,11 @@ public class MainActivity extends AppCompatActivity implements SoundDataObserver
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    Toast.makeText(MainActivity.this, "Switch jest włączony", Toast.LENGTH_LONG).show();
+                   // Toast.makeText(MainActivity.this, "Switch jest włączony", Toast.LENGTH_LONG).show();
                     StopSwitch = true;
                 } else {
                     StopSwitch = false;
-                    Toast.makeText(MainActivity.this, "Switch jest wyłączony", Toast.LENGTH_LONG).show();
+                   // Toast.makeText(MainActivity.this, "Switch jest wyłączony", Toast.LENGTH_LONG).show();
                 }
 
                 // Zapisz stan przycisku i StopSwitch do SharedPreferences po zmianie
@@ -157,9 +197,6 @@ public class MainActivity extends AppCompatActivity implements SoundDataObserver
                 editor.apply();
             }
         });
-
-
-
 
 
         TextView infoTextView = findViewById(R.id.infoTextView);
@@ -214,22 +251,38 @@ public class MainActivity extends AppCompatActivity implements SoundDataObserver
                     dataSet = new LineDataSet(new ArrayList<>(entries), "Data");
                     dataSet2 = new LineDataSet(new ArrayList<>(entries2), "Data");
 
-                    dataSet.setColor(0xFF00FF00);
-                    dataSet2.setColor(0xFFFFFFFF);
 
-                    XAxis xAxis = chart.getXAxis();
-                    xAxis.setTextColor(Color.RED);  // Ustawia kolor tekstu na osi X
-                    xAxis.setAxisLineColor(Color.BLUE);  // Ustawia kolor linii osi X
+                }
+                float chart1_max_Y = findMaxValue(entries);
+                //float chart2_max_Y = findMaxValue(entries2);
 
-                    YAxis yAxis = chart.getAxisLeft();  // Lub getAxisRight(), jeśli chcesz zmienić kolor osi prawej
-                    yAxis.setTextColor(Color.GREEN);  // Ustawia kolor tekstu na osi Y
-                    yAxis.setAxisLineColor(Color.YELLOW);  // Ustawia kolor linii osi Y
+                float chart1_min_Y = findMaxValue(entries);
+                //float chart2_min_Y = findMaxValue(entries2);
 
+                // Find max
+                if(chart1_max_Y > max_1_Y)
+                {
+                    max_1_Y = chart1_max_Y;
+                    YAxis yAxis1 = chart.getAxisLeft();
+                    YAxis yAxis2 = chart.getAxisRight();
+                    yAxis1.setAxisMaximum(max_1_Y);
+                    yAxis2.setAxisMaximum(max_1_Y);
 
                 }
 
-                /*transformXToLogarithmic(dataSet);
-                transformXToLogarithmic(dataSet2);*/
+                // Find min
+                if(chart1_min_Y < min_1_Y)
+                {
+                    min_1_Y = chart1_min_Y;
+                    YAxis yAxis3 = chart.getAxisLeft();
+                    YAxis yAxis4 = chart.getAxisRight();
+                    yAxis3.setAxisMinimum(min_1_Y);
+                    yAxis4.setAxisMinimum(min_1_Y);
+
+                }
+
+
+
 
                 LineData lineData = new LineData(dataSet);
                 LineData lineData2 = new LineData(dataSet2);
@@ -250,69 +303,37 @@ public class MainActivity extends AppCompatActivity implements SoundDataObserver
                     {
                         highlightPoint(chart, touchX, entries);
                     }
-
-/*                    // Retrieve X and Y values from the second chart
-                    float get_X_Value = chart2.getX();
-                    float get_Y_Value = chart2.getY();
-
-                    // Add the new entry to specData
-                    specData.add(new Entry(get_Y_Value, get_X_Value));*/
                 }
-/*
-                TextView infoTextView1 = findViewById(R.id.infoTextView);
-
-                // Załóżmy, że touchX to pozycja dotknięcia na wykresie
-                Entry entryForTouchX = dataSet.getEntryForXValue(touchX, Float.NaN);
-
-                if (entryForTouchX != null) {
-                    float xValue = entryForTouchX.getX();
-                    float yValue = entryForTouchX.getY();
-
-                    // Teraz masz prawidłowe wartości X i Y
-                    infoText = "Zaznaczono punkt - X: " + xValue + ", Y: " + yValue;
-                } else {
-                    infoText = "Zaznaczono punkt - X: " + touchX + ", Y: Brak";
-                }
-                infoTextView1.setText(infoText);*/
-
-
             }
         });
     }
 
-    private void transformXToLogarithmic(LineDataSet dataSet) {
-        List<Entry> transformedEntries = new ArrayList<>();
-        for (Entry entry : dataSet.getValues()) {
-            // Zakładam, że wartość X jest dodatnia
-            float transformedX = (float) Math.log10(entry.getX());
-            transformedEntries.add(new Entry(transformedX, entry.getY()));
-        }
-        dataSet.setValues(transformedEntries);
-    }
-/*
-    private void highlightPoint(LineChart chart, float touchX, List<Entry> entries) {
-        TextView infoTextView1 = findViewById(R.id.infoTextView);
-        // Automatyczne zaznaczanie punktu na podstawie wartości X
-        Entry entryForTouchX = getEntryForXWithMargin(entries, touchX, 1f);
-        if (entryForTouchX != null) {
-            chart.highlightValue(entryForTouchX.getX(), entryForTouchX.getY(), 0);
-            String infoText = "Zaznaczono punkt - X: " + entryForTouchX.getX() + ", Y: " + entryForTouchX.getY();
-            // Ustaw informacje w odpowiednim TextView
-            // (możesz użyć findViewWithTag dla dynamicznego znajdowania odpowiedniego TextView)
-            Toast.makeText(this, "Znaleziono X ", Toast.LENGTH_SHORT).show();
-             infoTextView1.setText(infoText);
-        }
-    }
+    public float findMaxValue(List<Entry> entries) {
+        float maxValue = Float.MIN_VALUE;
 
-    private Entry getEntryForXWithMargin(List<Entry> entries, float xValue, float marginError) {
         for (Entry entry : entries) {
-            // Sprawdź, czy wartość X jest w zakresie z uwzględnieniem marginesu błędu
-            if (Math.abs(entry.getX() - xValue) <= marginError) {
-                return entry;
+            float value = entry.getY();
+            if (value > maxValue) {
+                maxValue = value;
             }
         }
-        return null;
-    }*/
+
+        return maxValue;
+    }
+
+    public float findMinValue(List<Entry> entries) {
+        float minValue = Float.MAX_VALUE;
+
+        for (Entry entry : entries) {
+            float value = entry.getY();
+            if (value < minValue) {
+                minValue = value;
+            }
+        }
+
+        return minValue;
+    }
+
 private void highlightPoint(LineChart chart, float touchX, List<Entry> entries) {
     TextView infoTextView1 = findViewById(R.id.infoTextView);
 
@@ -321,7 +342,7 @@ private void highlightPoint(LineChart chart, float touchX, List<Entry> entries) 
             if (entry.getX() == touchX) {
                 chart.highlightValue(entry.getX(), entry.getY(), 0);
                 String infoText = "Zaznaczono punkt - X: " + entry.getX() + ", Y: " + entry.getY();
-                Toast.makeText(this, "Znaleziono X ", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(this, "Znaleziono X ", Toast.LENGTH_SHORT).show();
                 infoTextView1.setText(infoText);
                 return; // Zatrzymaj pętlę po znalezieniu odpowiedniego punktu
             }
@@ -329,7 +350,7 @@ private void highlightPoint(LineChart chart, float touchX, List<Entry> entries) 
     }
 
     // Jeśli nie znaleziono punktu o wartości X równą touchX
-    Toast.makeText(this, "Nie znaleziono punktu o wartości X: " + touchX, Toast.LENGTH_SHORT).show();
+    //Toast.makeText(this, "Nie znaleziono punktu o wartości X: " + touchX, Toast.LENGTH_SHORT).show();
 }
 
 
@@ -342,7 +363,7 @@ private void highlightPoint(LineChart chart, float touchX, List<Entry> entries) 
             int audioFormat = AudioFormat.ENCODING_PCM_16BIT;
             int bufferSize = AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioFormat);
             //initializeAudioRecording(sampleRate, channelConfig, audioFormat, bufferSize);
-            Toast.makeText(this, "Nagrywanie Działa ", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, "Nagrywanie Działa ", Toast.LENGTH_SHORT).show();
 
         } else {
             Log.e(TAG, "Brak uprawnień do nagrywania dźwięku.");

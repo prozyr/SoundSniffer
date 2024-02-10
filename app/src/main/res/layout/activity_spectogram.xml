@@ -7,8 +7,8 @@
     tools:context=".Spectogram">
 
 
-    <com.github.mikephil.charting.charts.LineChart
-        android:id="@+id/Spectogram"
+    <ImageView
+        android:id="@+id/spectogramImageView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#2B2B2B"
@@ -47,6 +47,5 @@
         android:thumb="@drawable/pause_button_svg"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>
