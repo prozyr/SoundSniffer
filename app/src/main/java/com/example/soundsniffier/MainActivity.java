@@ -83,6 +83,7 @@ public class MainActivity extends AppCompatActivity implements SoundDataObserver
     public List<Entry> entries = new ArrayList<>();
 
     static public List<Entry> entries2 = new ArrayList<>();
+    public List<Entry> logEntries = new ArrayList<>();
     static public float get_X_Value;
     static public float get_Y_Value;
     public float touchX;
@@ -112,6 +113,7 @@ public class MainActivity extends AppCompatActivity implements SoundDataObserver
         chart2 = findViewById(R.id.mychart2);
         SpecButton = findViewById(R.id.SpecButton);
         startButton = findViewById((R.id.toggleButton));
+
 
         int textSize = 10;
 
@@ -247,6 +249,8 @@ public class MainActivity extends AppCompatActivity implements SoundDataObserver
                 LineDataSet dataSet, dataSet2;
 
                 synchronized (lock) {
+
+                    //logEntries = LogEntries(entries2);
                     // Create copies of the lists inside the synchronized block
                     dataSet = new LineDataSet(new ArrayList<>(entries), "Data");
                     dataSet2 = new LineDataSet(new ArrayList<>(entries2), "Data");
@@ -259,6 +263,7 @@ public class MainActivity extends AppCompatActivity implements SoundDataObserver
                 float chart1_min_Y = findMinValue(entries);
                 float chart2_min_Y = findMinValue(entries2);
 
+                logEntries.clear();
                 // Toast.makeText(MainActivity.this, "min: " + min_1_Y + " max: " + max_1_Y, Toast.LENGTH_SHORT).show();
                  //Toast.makeText(MainActivity.this, "min: " + min_2_Y + " max: " + max_2_Y, Toast.LENGTH_SHORT).show();
 
@@ -354,6 +359,32 @@ public class MainActivity extends AppCompatActivity implements SoundDataObserver
                 }
             }
         });
+    }
+
+    public List<Entry> LogEntries(List<Entry> entries) {
+
+        List<Entry> LogEntries = new ArrayList<>();
+        float LogY = 0;
+
+        for (Entry entry : entries) {
+            //Toast.makeText(this, "Entry Y: " + entry.getY(), Toast.LENGTH_SHORT).show();
+            if(entry.getY() > 0)
+            {
+                LogY = (float) Math.log(entry.getY()) / (float)Math.log(10);
+            }
+            else if(entry.getY() < 0)
+            {
+                LogY = -1*((float) Math.log(Math.abs(entry.getY())) / (float)Math.log(10));
+            }
+            else if (entry.getY() == 0)
+            {
+                LogY = 0.0f;
+            }
+            //Toast.makeText(this,"Entry Y: " + entry.getY() +  " Log Y: " + LogY, Toast.LENGTH_SHORT).show();
+            LogEntries.add(new Entry(entry.getX(),LogY));
+
+            }
+        return LogEntries;
     }
 
     public float findMaxValue(List<Entry> entries) {
