@@ -1,5 +1,6 @@
 package com.example.soundsniffier;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.media.AudioFormat;
@@ -9,6 +10,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.ToggleButton;
 
@@ -29,6 +33,7 @@ import java.util.Collections;
 public class Spectogram extends AppCompatActivity implements SoundDataObserver {
     private ImageView spectogramImageView;
     private ToggleButton startButtonSpec;
+    private Button chartButton;
     private Boolean StopSwitchSpec = false;
     private SharedPreferences sharedPreferences;
     private static final String TAG = "SoundSniffer";
@@ -40,6 +45,7 @@ public class Spectogram extends AppCompatActivity implements SoundDataObserver {
     private static final int SPECTROGRAM_HEIGHT = 800; // Adjust this value as needed
     private static final int SPECTROGRAM_WIDTH = NUM_SAMPLES / 2; // Half of NUM_SAMPLES
     private int[] pixels;
+
     private Queue<List<Float>> spectrogramQueue;
     private HandlerThread handlerThread;
     private Handler handler;
@@ -51,6 +57,7 @@ public class Spectogram extends AppCompatActivity implements SoundDataObserver {
 
         spectogramImageView = findViewById(R.id.spectogramImageView);
         startButtonSpec = findViewById(R.id.toggleButton);
+        chartButton = findViewById(R.id.ChartButton);
 
         // Initialize ReadSound object
         ReadSound readSound = new ReadSound(this);
@@ -59,6 +66,42 @@ public class Spectogram extends AppCompatActivity implements SoundDataObserver {
 
         // Initialize SharedPreferences with the name "MySettingsSpec"
         sharedPreferences = getSharedPreferences("MySettingsSpec", Spectogram.MODE_PRIVATE);
+
+        // Odczytaj stan przycisku z SharedPreferences i ustaw go na przycisku
+        boolean savedToggleButtonState = sharedPreferences.getBoolean("toggleButtonState", false);
+        startButtonSpec.setChecked(savedToggleButtonState);
+
+        // Odczytaj stan StopSwitch z SharedPreferences
+        StopSwitchSpec = sharedPreferences.getBoolean("StopSwitchState", false);
+
+        chartButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Intent intent = new Intent(Spectogram.this, MainActivity.class);
+                //intent.putExtra("StopSwitchStateM", StopSwitch);
+                //intent.putExtra("ToggleButtonStateM", startButton.isChecked());
+                startActivity(intent);
+            }
+        });
+
+        startButtonSpec.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    // Toast.makeText(MainActivity.this, "Switch jest włączony", Toast.LENGTH_LONG).show();
+                    StopSwitchSpec = true;
+                } else {
+                    StopSwitchSpec = false;
+                    // Toast.makeText(MainActivity.this, "Switch jest wyłączony", Toast.LENGTH_LONG).show();
+                }
+
+                // Zapisz stan przycisku i StopSwitch do SharedPreferences po zmianie
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putBoolean("toggleButtonState", isChecked);
+                editor.putBoolean("StopSwitchState", StopSwitchSpec);
+                editor.apply();
+            }
+        });
+
 
         handlerThread = new HandlerThread("SpectrogramHandlerThread");
         handlerThread.start();
@@ -87,13 +130,19 @@ public class Spectogram extends AppCompatActivity implements SoundDataObserver {
                     }
 
                     // Update spectrogram pixels
-                    updateSpectrogramPixels(entries);
+                    if (!StopSwitchSpec)
+                    {
+                        updateSpectrogramPixels(entries);
+
+                    }
 
                     // Update spectogram image view
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            spectogramImageView.setImageBitmap(Bitmap.createBitmap(pixels, SPECTROGRAM_WIDTH, SPECTROGRAM_HEIGHT, Bitmap.Config.RGB_565));
+
+                                spectogramImageView.setImageBitmap(Bitmap.createBitmap(pixels, SPECTROGRAM_WIDTH, SPECTROGRAM_HEIGHT, Bitmap.Config.RGB_565));
+
                         }
                     });
                 }

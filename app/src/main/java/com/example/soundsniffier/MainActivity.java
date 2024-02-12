@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity implements SoundDataObserver
     public  float max_1_Y = 0;
     public  float max_2_Y = 0;
     public  float min_1_Y = 1000;
-    public  float min_2_Y = 0;
+    public  float min_2_Y = 1000;
     String infoText = "";
     static public List<Entry> specData = new ArrayList<>();
 
@@ -254,10 +254,13 @@ public class MainActivity extends AppCompatActivity implements SoundDataObserver
 
                 }
                 float chart1_max_Y = findMaxValue(entries);
-                //float chart2_max_Y = findMaxValue(entries2);
+                float chart2_max_Y = findMaxValue(entries2);
 
-                float chart1_min_Y = findMaxValue(entries);
-                //float chart2_min_Y = findMaxValue(entries2);
+                float chart1_min_Y = findMinValue(entries);
+                float chart2_min_Y = findMinValue(entries2);
+
+                // Toast.makeText(MainActivity.this, "min: " + min_1_Y + " max: " + max_1_Y, Toast.LENGTH_SHORT).show();
+                 //Toast.makeText(MainActivity.this, "min: " + min_2_Y + " max: " + max_2_Y, Toast.LENGTH_SHORT).show();
 
                 // Find max
                 if(chart1_max_Y > max_1_Y)
@@ -281,6 +284,51 @@ public class MainActivity extends AppCompatActivity implements SoundDataObserver
 
                 }
 
+
+                // Find max
+                if (chart2_max_Y > max_2_Y) {
+                    max_2_Y = chart2_max_Y;
+                }
+
+                // Find min
+                if (chart2_min_Y < min_2_Y) {
+                    min_2_Y = chart2_min_Y;
+                }
+
+                if(max_2_Y > Math.abs(min_2_Y))
+                {
+                    min_2_Y = -max_2_Y;
+                    YAxis yAxis30 = chart2.getAxisLeft();
+                    YAxis yAxis40 = chart2.getAxisRight();
+                    yAxis30.setAxisMinimum(Math.min(min_2_Y, -max_2_Y));
+                    yAxis40.setAxisMinimum(Math.min(min_2_Y, -max_2_Y));
+                    yAxis30.setAxisMaximum(Math.max(max_2_Y, -min_2_Y));
+                    yAxis40.setAxisMaximum(Math.max(max_2_Y, -min_2_Y));
+                }
+                else if (max_2_Y < Math.abs(min_2_Y))
+                {
+                    max_2_Y = Math.abs(min_2_Y);
+                    YAxis yAxis30 = chart2.getAxisLeft();
+                    YAxis yAxis40 = chart2.getAxisRight();
+                    yAxis30.setAxisMinimum(Math.min(min_2_Y, -max_2_Y));
+                    yAxis40.setAxisMinimum(Math.min(min_2_Y, -max_2_Y));
+                    yAxis30.setAxisMaximum(Math.max(max_2_Y, -min_2_Y));
+                    yAxis40.setAxisMaximum(Math.max(max_2_Y, -min_2_Y));
+                }
+                else
+                {
+                    min_2_Y += 20;
+                    max_2_Y -= 20;
+                    YAxis yAxis300 = chart2.getAxisLeft();
+                    YAxis yAxis400 = chart2.getAxisRight();
+                    yAxis300.setAxisMinimum(Math.min(min_2_Y, -max_2_Y));
+                    yAxis400.setAxisMinimum(Math.min(min_2_Y, -max_2_Y));
+                    yAxis300.setAxisMaximum(Math.max(max_2_Y, -min_2_Y));
+                    yAxis400.setAxisMaximum(Math.max(max_2_Y, -min_2_Y));
+                }
+
+
+               // Toast.makeText(MainActivity.this,"After "  + "min: " + min_2_Y + " max: " + max_2_Y, Toast.LENGTH_SHORT).show();
 
 
 
