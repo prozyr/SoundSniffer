@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
@@ -42,9 +43,14 @@ public class Spectogram extends AppCompatActivity implements SoundDataObserver {
     private static final int AUDIO_FORMAT = AudioFormat.ENCODING_PCM_16BIT;
     private static final int BUFFER_SIZE = AudioRecord.getMinBufferSize(SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_FORMAT);
     private static final int NUM_SAMPLES = 650; // Adjust this value as needed
-    private static final int SPECTROGRAM_HEIGHT = 800; // Adjust this value as needed
+    private static final int SPECTROGRAM_HEIGHT = 665; // Adjust this value as needed
     private static final int SPECTROGRAM_WIDTH = NUM_SAMPLES / 2; // Half of NUM_SAMPLES
     private int[] pixels;
+    private  TextView axisLeft;
+    private  TextView axisRight;
+    float maxAxis = Float.MAX_VALUE;
+    float minAxis  = Float.MIN_VALUE;
+    long Old_time = 0;
 
     private Queue<List<Float>> spectrogramQueue;
     private HandlerThread handlerThread;
@@ -58,6 +64,11 @@ public class Spectogram extends AppCompatActivity implements SoundDataObserver {
         spectogramImageView = findViewById(R.id.spectogramImageView);
         startButtonSpec = findViewById(R.id.toggleButton);
         chartButton = findViewById(R.id.ChartButton);
+        axisLeft = findViewById(R.id.Axis_Left);
+        axisRight = findViewById(R.id.Axis_Right);
+
+
+        int screenWidth = getResources().getDisplayMetrics().widthPixels;
 
         // Initialize ReadSound object
         ReadSound readSound = new ReadSound(this);
@@ -103,6 +114,7 @@ public class Spectogram extends AppCompatActivity implements SoundDataObserver {
         });
 
 
+
         handlerThread = new HandlerThread("SpectrogramHandlerThread");
         handlerThread.start();
         handler = new Handler(handlerThread.getLooper());
@@ -136,10 +148,20 @@ public class Spectogram extends AppCompatActivity implements SoundDataObserver {
 
                     }
 
+                    maxAxis = findMaxValue(entries);
+                    minAxis = findMinValue(entries);
+
                     // Update spectogram image view
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
+
+                                if(System.currentTimeMillis() - Old_time > 1000)
+                                {
+                                    axisRight.setText(String.valueOf(minAxis));
+                                    axisLeft.setText(String.valueOf(maxAxis));
+                                    Old_time = System.currentTimeMillis();
+                                }
 
                                 spectogramImageView.setImageBitmap(Bitmap.createBitmap(pixels, SPECTROGRAM_WIDTH, SPECTROGRAM_HEIGHT, Bitmap.Config.RGB_565));
 
@@ -194,6 +216,31 @@ public class Spectogram extends AppCompatActivity implements SoundDataObserver {
         }
     }
 
+    public float findMaxValue(List<Entry> entries) {
+        float maxValue = Float.MIN_VALUE;
+
+        for (Entry entry : entries) {
+            float value = entry.getX();
+            if (value > maxValue) {
+                maxValue = value;
+            }
+        }
+
+        return maxValue;
+    }
+
+    public float findMinValue(List<Entry> entries) {
+        float minValue = Float.MAX_VALUE;
+
+        for (Entry entry : entries) {
+            float value = entry.getX();
+            if (value < minValue) {
+                minValue = value;
+            }
+        }
+
+        return minValue;
+    }
 
     private int calculateColor(float amplitude) {
         // Adjust color intensity based on amplitude

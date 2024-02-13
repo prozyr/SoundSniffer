@@ -17,17 +17,20 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintVertical_bias="0.0"
+        >
+z
+    </ImageView>
 
     <Button
         android:id="@+id/ChartButton"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_marginTop="20dp"
-        android:layout_marginRight="100dp"
-        android:background="@drawable/bar_button_svg"
+        android:layout_marginRight="80dp"
+        app:backgroundTint="@null"
+        android:background="@drawable/wave_button"
         android:padding="40dp"
-        android:text="Chart"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -43,9 +46,34 @@
         android:padding="20dp"
         android:text="Toggle"
         android:checked="false"
-        android:background="@drawable/toggle_selector"
+        android:background="@drawable/toggle_selector_white"
         android:thumb="@drawable/pause_button_svg"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+
+    <TextView
+        android:id="@+id/Axis_Left"
+        android:layout_width="100dp"
+        android:layout_height="40dp"
+        android:textSize="20dp"
+        android:textColor="#FFFFFFFF"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+    </TextView>
+
+    <TextView
+        android:id="@+id/Axis_Right"
+        android:layout_width="100dp"
+        android:layout_height="40dp"
+        android:textColor="#FFFFFFFF"
+        android:textSize="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+    </TextView>
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
