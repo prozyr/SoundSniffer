@@ -335,8 +335,6 @@ public class MainActivity extends AppCompatActivity implements SoundDataObserver
 
                // Toast.makeText(MainActivity.this,"After "  + "min: " + min_2_Y + " max: " + max_2_Y, Toast.LENGTH_SHORT).show();
 
-
-
                 LineData lineData = new LineData(dataSet);
                 LineData lineData2 = new LineData(dataSet2);
 
@@ -357,6 +355,8 @@ public class MainActivity extends AppCompatActivity implements SoundDataObserver
                         highlightPoint(chart, touchX, entries);
                     }
                 }
+                lineData = null;
+                lineData2 = null;
             }
         });
     }
@@ -437,7 +437,7 @@ private void highlightPoint(LineChart chart, float touchX, List<Entry> entries) 
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == 1 && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            int sampleRate = 5000; // 44100
+            int sampleRate = 44100/2; // 44100
             int channelConfig = AudioFormat.CHANNEL_IN_MONO;
             int audioFormat = AudioFormat.ENCODING_PCM_16BIT;
             int bufferSize = AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioFormat);
