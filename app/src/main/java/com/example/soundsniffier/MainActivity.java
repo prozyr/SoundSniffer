@@ -101,6 +101,21 @@ public class MainActivity extends AppCompatActivity implements SoundDataObserver
     private double[] window;
     private SharedPreferences sharedPreferences;
 
+    /////////////////////////////////////////////////
+    LineDataSet dataSet, dataSet2;
+    float chart1_max_Y, chart2_max_Y, chart1_min_Y, chart2_min_Y;
+    YAxis yAxis1;
+    YAxis yAxis2;
+    YAxis yAxis3;
+    YAxis yAxis4;
+    YAxis yAxis30;
+    YAxis yAxis40;
+    YAxis yAxis300;
+    YAxis yAxis400;
+    LineData lineData;
+    LineData lineData2;
+    ////////////////////////////////////////////////
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -145,7 +160,12 @@ public class MainActivity extends AppCompatActivity implements SoundDataObserver
         chart2.getDescription().setText("Przebieg");
         chart2.getDescription().setTextSize(textSize);
         chart2.getLegend().setTextColor(Color.WHITE);
-
+        synchronized (lock) {
+            dataSet = new LineDataSet(null, "Data");
+            dataSet2 = new LineDataSet(null, "Data");
+            lineData = new LineData(dataSet);
+            lineData2 = new LineData(dataSet2);
+        }
         // Inicjalizacja obiektu ReadSound
         ReadSound readSound = new ReadSound(this);
         // Dodanie tej klasy jako obserwatora
@@ -170,7 +190,6 @@ public class MainActivity extends AppCompatActivity implements SoundDataObserver
             startButton.setChecked(savedToggleButtonState);
             StopSwitch = savedStopSwitchState;
         }*/
-
 
         SpecButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -246,22 +265,33 @@ public class MainActivity extends AppCompatActivity implements SoundDataObserver
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                LineDataSet dataSet, dataSet2;
+
+                int bagno = 0;
 
                 synchronized (lock) {
 
-                    //logEntries = LogEntries(entries2);
-                    // Create copies of the lists inside the synchronized block
-                    dataSet = new LineDataSet(new ArrayList<>(entries), "Data");
-                    dataSet2 = new LineDataSet(new ArrayList<>(entries2), "Data");
+                    dataSet.clear();
+                    dataSet2.clear();
 
+                    for (Entry entry: entries) {
+                        dataSet.addEntry(entry);
+                    }
+                    for (Entry entry: entries2) {
+                        dataSet2.addEntry(entry);
+                        bagno ++;
+                    }
+
+                    lineData.clearValues();
+                    lineData.addDataSet(dataSet);
+                    lineData2.clearValues();
+                    lineData2.addDataSet(dataSet2);
 
                 }
-                float chart1_max_Y = findMaxValue(entries);
-                float chart2_max_Y = findMaxValue(entries2);
+                chart1_max_Y = findMaxValue(entries);
+                chart2_max_Y = findMaxValue(entries2);
 
-                float chart1_min_Y = findMinValue(entries);
-                float chart2_min_Y = findMinValue(entries2);
+                chart1_min_Y = findMinValue(entries);
+                chart2_min_Y = findMinValue(entries2);
 
                 logEntries.clear();
                 // Toast.makeText(MainActivity.this, "min: " + min_1_Y + " max: " + max_1_Y, Toast.LENGTH_SHORT).show();
@@ -271,8 +301,8 @@ public class MainActivity extends AppCompatActivity implements SoundDataObserver
                 if(chart1_max_Y > max_1_Y)
                 {
                     max_1_Y = chart1_max_Y;
-                    YAxis yAxis1 = chart.getAxisLeft();
-                    YAxis yAxis2 = chart.getAxisRight();
+                    yAxis1 = chart.getAxisLeft();
+                    yAxis2 = chart.getAxisRight();
                     yAxis1.setAxisMaximum(max_1_Y);
                     yAxis2.setAxisMaximum(max_1_Y);
 
@@ -282,8 +312,8 @@ public class MainActivity extends AppCompatActivity implements SoundDataObserver
                 if(chart1_min_Y < min_1_Y)
                 {
                     min_1_Y = chart1_min_Y;
-                    YAxis yAxis3 = chart.getAxisLeft();
-                    YAxis yAxis4 = chart.getAxisRight();
+                    yAxis3 = chart.getAxisLeft();
+                    yAxis4 = chart.getAxisRight();
                     yAxis3.setAxisMinimum(min_1_Y);
                     yAxis4.setAxisMinimum(min_1_Y);
 
@@ -303,8 +333,8 @@ public class MainActivity extends AppCompatActivity implements SoundDataObserver
                 if(max_2_Y > Math.abs(min_2_Y))
                 {
                     min_2_Y = -max_2_Y;
-                    YAxis yAxis30 = chart2.getAxisLeft();
-                    YAxis yAxis40 = chart2.getAxisRight();
+                    yAxis30 = chart2.getAxisLeft();
+                    yAxis40 = chart2.getAxisRight();
                     yAxis30.setAxisMinimum(Math.min(min_2_Y, -max_2_Y));
                     yAxis40.setAxisMinimum(Math.min(min_2_Y, -max_2_Y));
                     yAxis30.setAxisMaximum(Math.max(max_2_Y, -min_2_Y));
@@ -313,8 +343,8 @@ public class MainActivity extends AppCompatActivity implements SoundDataObserver
                 else if (max_2_Y < Math.abs(min_2_Y))
                 {
                     max_2_Y = Math.abs(min_2_Y);
-                    YAxis yAxis30 = chart2.getAxisLeft();
-                    YAxis yAxis40 = chart2.getAxisRight();
+                    yAxis30 = chart2.getAxisLeft();
+                    yAxis40 = chart2.getAxisRight();
                     yAxis30.setAxisMinimum(Math.min(min_2_Y, -max_2_Y));
                     yAxis40.setAxisMinimum(Math.min(min_2_Y, -max_2_Y));
                     yAxis30.setAxisMaximum(Math.max(max_2_Y, -min_2_Y));
@@ -324,8 +354,8 @@ public class MainActivity extends AppCompatActivity implements SoundDataObserver
                 {
                     min_2_Y += 20;
                     max_2_Y -= 20;
-                    YAxis yAxis300 = chart2.getAxisLeft();
-                    YAxis yAxis400 = chart2.getAxisRight();
+                    yAxis300 = chart2.getAxisLeft();
+                    yAxis400 = chart2.getAxisRight();
                     yAxis300.setAxisMinimum(Math.min(min_2_Y, -max_2_Y));
                     yAxis400.setAxisMinimum(Math.min(min_2_Y, -max_2_Y));
                     yAxis300.setAxisMaximum(Math.max(max_2_Y, -min_2_Y));
@@ -335,8 +365,7 @@ public class MainActivity extends AppCompatActivity implements SoundDataObserver
 
                // Toast.makeText(MainActivity.this,"After "  + "min: " + min_2_Y + " max: " + max_2_Y, Toast.LENGTH_SHORT).show();
 
-                LineData lineData = new LineData(dataSet);
-                LineData lineData2 = new LineData(dataSet2);
+
 
                 if (!StopSwitch) {
                     // Update chart data and refresh
@@ -349,14 +378,15 @@ public class MainActivity extends AppCompatActivity implements SoundDataObserver
                     chart2.notifyDataSetChanged();
                     chart2.invalidate();
 
+                    // Set visible range before moving view
+                    chart2.setVisibleXRangeMaximum(bagno-1000); // Set the visible number of points on the X axis
+                    chart2.moveViewToX(lineData2.getXMax() - bagno+1000); //
 
                     if(touchX != 0.0f)
                     {
                         highlightPoint(chart, touchX, entries);
                     }
                 }
-                lineData = null;
-                lineData2 = null;
             }
         });
     }

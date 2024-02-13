@@ -77,10 +77,10 @@ import org.jtransforms.fft.DoubleFFT_1D;
 
 public class ReadSound {
     ////// Maciejowy raj
-    int ileWEntry2 = 5;
-    int ileWHistogram = 1;
+    int ileWEntry2 = 4;
+    int ileWHistogram = 2;
 
-    int ileWFFT = 2048;
+    int ileWFFT = 12048;
     byte[] buffer;
     int bytesRead, audioSample;
     short[] datatoHist;
@@ -100,7 +100,7 @@ public class ReadSound {
     private double[] window;
     public List<Entry> entries = new ArrayList<>();
     public List<Entry> entries2 = new ArrayList<>();
-    int sampleRate = 44100/2;  // TODO: 44100
+    int sampleRate = 44100;//44100/2;  // TODO: 44100
     int channelConfig = AudioFormat.CHANNEL_IN_MONO;
     int audioFormat = AudioFormat.ENCODING_PCM_16BIT;
     int bufferSize = AudioRecord.getMinBufferSize(sampleRate, channelConfig, audioFormat);
