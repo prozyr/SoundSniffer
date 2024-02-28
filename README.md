@@ -2,6 +2,8 @@
 
 Sound Sniffer is a mobile application for analyzing the acoustic environment of the user, enabling the detection of sounds from the surroundings and presenting them on charts.
 
+<img src="img/main_window.png" alt="Main Window" height="400"/> <img src="img/spectogram.png" alt="Spectrogram" height="400"/>
+
 ## Project Objective
 
 The project aims to create a mobile application that allows users to monitor sound levels and analyze the characteristics of sound in real-time.
